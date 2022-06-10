@@ -1,0 +1,1 @@
+SELECT round(CAST(AVG(price) as numeric), 2) FROM products;
