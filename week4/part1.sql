@@ -19,7 +19,7 @@ CREATE TABLE employees(
 	);
 CREATE TABLE phones(
 		id int PRIMARY KEY,
-        model varchar(255) NOT NULL,
-        year_made int NOT NULL,
-        price_in_usd int NOT NULL
+		model varchar(255) NOT NULL,
+		year_made int NOT NULL,
+		price_in_usd int NOT NULL
     );
