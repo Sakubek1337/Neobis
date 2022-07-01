@@ -1,0 +1,31 @@
+***This documentation is temporary and I will remake it with Swagger next week***
+1)
+	1.Shows all the products
+	2.GET /main
+	3.None
+	4.List of drinks in a format of (id-name-price)
+2)
+	1.Shows the particular product
+	2.GET /showDrink/{id}
+	3.None (but has Path variable)
+	4.JSON file of the chosen product
+3)
+	1.Adds the new product
+	2.POST /addDrink
+	3.JSON file of a new product
+	4."New drink was successfully added to the database!"
+4)
+	1.Updates the existing product
+	2.PATCH /updateDrink/{id}
+	3.JSON file of a product without id
+	4."Drink was successfully updated!"
+5)
+	1.Orders the product
+	2.POST /order/{id}
+	3.None (but has Path variable)
+	4."Drink {drink's name} was successfully delivered to your berloga!"
+6)
+	1.Deletes the product entirely
+	2.POST /deleteDrink/{id}
+	3.None (but has Path variable)
+	4."Drink was successfully deleted from the database!"
