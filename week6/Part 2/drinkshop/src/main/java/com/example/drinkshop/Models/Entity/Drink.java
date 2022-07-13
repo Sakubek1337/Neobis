@@ -22,4 +22,6 @@ public class Drink {
     private int net_weight;
 
     private int price_in_soms;
+
+    private String pict_url;
 }

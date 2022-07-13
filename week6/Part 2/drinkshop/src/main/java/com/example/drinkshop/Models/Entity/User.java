@@ -23,7 +23,11 @@ public class User {
 
     private String email;
 
-    private int purchases_done;
+    private String role;
 
-    private long total_spent;
+    private Integer purchases_done;
+
+    private Long total_spent;
+
+    private String pict_url;
 }

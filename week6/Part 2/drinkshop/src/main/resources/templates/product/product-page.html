@@ -3,8 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <title>in progress</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/common.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/product-page.css}">
 </head>
 <body>
-
+<div th:object="${product}">
+    <div id="picture" th:style="'background:url('+ *{pict_url} +');background-repeat: no-repeat;background-size: 100%;'">
+    </div>
+    <div id="body">
+        <p>
+            Name: <span th:text="*{name}"></span> <br>
+            Net weight: <span th:text="*{net_weight}"></span> <br>
+            Price: <span th:text="*{price_in_soms}"></span> soms
+        </p>
+    </div>
+</div>
 </body>
 </html>
