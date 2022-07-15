@@ -3,10 +3,9 @@ package com.example.drinkshop.Controllers;
 import com.example.drinkshop.Models.Entity.Drink;
 import com.example.drinkshop.Models.Entity.User;
 import com.example.drinkshop.Models.RegistrationInfo;
-import com.example.drinkshop.Repo.DrinkRepo;
 import com.example.drinkshop.Service.DatabaseManager;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -14,104 +13,73 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
-@Controller
+@RestController
 public class MainController {
-
-    @Autowired
-    DrinkRepo dr;
 
     @Autowired
     DatabaseManager dbm;
 
     RegistrationInfo RI = new RegistrationInfo();
 
-    @GetMapping("/main")
-    public ModelAndView main(){
-        ModelAndView mav = new ModelAndView("general/main-page");
-        List<Drink> drinks = dr.findAll();
-        mav.addObject("products", drinks);
-        return mav;
+    @Operation(summary = "Get the list of all products")
+    @GetMapping("/products")
+    public List<Drink> main(){
+        return dbm.getDrinks();
     }
 
-    @GetMapping("/")
-    public String redirtomain(){
-        return "redirect:main";
+    @Operation(summary = "Get the list of all users")
+    @GetMapping("/admin/users")
+    public List<User> getUsers(){
+        return dbm.getUsers();
     }
 
-    @GetMapping("/admin/add-product")
-    public ModelAndView add_page(){
-        ModelAndView mav = new ModelAndView("product/product-add");
-        Drink new_drink = new Drink();
-        mav.addObject("new_product", new_drink);
-        return mav;
+    @Operation(summary = "Add a new user")
+    @PostMapping("/admin/add-user")
+    public String addUser(@RequestBody User user){
+        dbm.saveUser(user);
+        return "New user was successfully added!";
     }
 
-    @PostMapping("/admin/action/save")
-    public String save(@ModelAttribute Drink drink){
-        dr.save(drink);
-        return "redirect:/main";
+    @Operation(summary = "Add a new product")
+    @PostMapping("/admin/add-product")
+    public String add(@RequestBody Drink drink){
+        dbm.saveDrink(drink);
+        return "New product was successfully added to database!";
     }
 
-    @PostMapping("/admin/action/delete-product/{id}")
-    public String delete(@ModelAttribute Drink drink){
-        dr.delete(drink);
-        return "redirect:/main";
+    @Operation(summary = "Delete a product by its ID")
+    @DeleteMapping("/admin/delete-product/{id}")
+    public Drink delete(@PathVariable Long id){
+        Drink drink = dbm.getDrinkById(id);
+        dbm.deleteDrink(drink);
+        return drink;
     }
 
+    @Operation(summary = "Delete a user by its ID")
+    @DeleteMapping("/admin/delete-user/{id}")
+    public User deleteUser(@PathVariable Long id){
+        User user = dbm.getUserById(id);
+        dbm.deleteUser(user);
+        return user;
+    }
+
+    @Operation(summary = "Get a product by its ID")
     @GetMapping("/product/{id}")
-    public ModelAndView get(@PathVariable Long id){
-        ModelAndView mav = new ModelAndView("product/product-page");
-        Drink drink = dr.getById(id);
-        mav.addObject("product", drink);
-        return mav;
+    public Drink get(@PathVariable Long id){
+        return dbm.getDrinkById(id);
     }
 
-    //Will be done in week9
-    //will have button in product page that will lead to this page
-    @GetMapping("/admin/update-product/{id}")
-    public ModelAndView update(@PathVariable Long id){
-        ModelAndView mav = new ModelAndView("product/product-update");
-        Drink drink = dr.getById(id);
-        mav.addObject("product", drink);
-        return mav;
+    @Operation(summary = "Update a product by its ID")
+    @PostMapping("/admin/update-product/{id}")
+    public String action_update(@RequestBody Drink drink){
+        dbm.saveDrink(drink);
+        return "Product was successfully updated!";
     }
 
-    @PostMapping("/admin/action/update-product")
-    public String action_update(@ModelAttribute Drink drink){
-        dr.save(drink);
-        return "redirect:" + drink.getId();
-    }
-
-    @GetMapping("/order")
-    public ModelAndView show_order_page(){
-        return new ModelAndView("general/order-page");
-    }
-
-    //Will be updated in week9
+    @Operation(summary = "Order a product by ID")
     @PostMapping("/order/{id}")
     public String order(@PathVariable Long id){
-        return "Drink " + dr.findById(id).get().getName() + " was successfully delivered to your berloga! Enjoy!";
-    }
-
-    //Will be done in week10
-    @GetMapping("/profile")
-    public ModelAndView prof(){
-        ModelAndView mav = new ModelAndView("profile/profile-main");
-        return mav;
-    }
-
-    //This will be a page where you can update attributes of your profile.
-    //Controller will get current profile via accessing principle details(username to be precise).
-    //Will code in week10
-    @GetMapping("/profile/update")
-    public ModelAndView upd(){
-        ModelAndView mav = new ModelAndView("profile/profile-update");
-        return mav;
-    }
-    //Will be done in week10
-    @PostMapping("/profile/update-profile")
-    public String perform_update(){
-        return "redirect:/profile";
+        return "Drink " + dbm.getDrinkById(id).getName() + " was successfully delivered to your berloga! Enjoy!";
     }
 
     @GetMapping("/login")
@@ -125,25 +93,27 @@ public class MainController {
 
     @PostMapping("/register")
     public String register(@ModelAttribute User user, HttpServletRequest request){
-        System.out.println("/register POST");
         user.setRole("ROLE_USER");
         if(dbm.checkUser(user.getUsername())){
             RI.setInUse(true);
+            return "Username is already in use, go back to login/reg page!";
         }else{
-            dbm.addUser(user);
+            dbm.saveUser(user);
             RI.setInUse(false);
             try {
                 request.login(user.getUsername(), user.getPassword());
             } catch (ServletException e) {
                 e.printStackTrace();
             }
+            return "SUCCESS!";
         }
-        return "redirect:main";
+
     }
 
-    @GetMapping("/admin")
-    public ModelAndView adminMain(){
-        return new ModelAndView("admin/admin-main");
+    @Operation(summary = "Get the list of administrators")
+    @GetMapping("/admins")
+    public String adminMain(){
+        return dbm.getAdmins();
     }
 
 }
