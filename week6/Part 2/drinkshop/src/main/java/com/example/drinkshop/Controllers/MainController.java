@@ -3,6 +3,7 @@ package com.example.drinkshop.Controllers;
 import com.example.drinkshop.Models.Entity.Drink;
 import com.example.drinkshop.Models.Entity.User;
 import com.example.drinkshop.Models.RegistrationInfo;
+import com.example.drinkshop.Repo.DrinkRepo;
 import com.example.drinkshop.Service.DatabaseManager;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ public class MainController {
 
     @Autowired
     DatabaseManager dbm;
+
+    @Autowired
+    DrinkRepo dr;
 
     RegistrationInfo RI = new RegistrationInfo();
 
@@ -36,15 +40,25 @@ public class MainController {
     @Operation(summary = "Add a new user")
     @PostMapping("/admin/add-user")
     public String addUser(@RequestBody User user){
-        dbm.saveUser(user);
-        return "New user was successfully added!";
+        if(user.getPassword() == null || user.getUsername() == null ||
+                (user.getUsername().length() * user.getPassword().length()) == 0){
+            return "Invalid credentials!";
+        }else{
+            dbm.saveUser(user);
+            return "New user was successfully added!";
+        }
     }
 
     @Operation(summary = "Add a new product")
     @PostMapping("/admin/add-product")
     public String add(@RequestBody Drink drink){
-        dbm.saveDrink(drink);
-        return "New product was successfully added to database!";
+        if(drink.getName() == null ||
+                drink.getName().length() * drink.getNet_weight() * drink.getPrice_in_soms() == 0){
+            return "Invalid credentials!";
+        }else{
+            dbm.saveDrink(drink);
+            return "New product was successfully added to database!";
+        }
     }
 
     @Operation(summary = "Delete a product by its ID")
