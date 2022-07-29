@@ -1,18 +1,32 @@
 package com.example.drinkshop.Controllers;
 
+import com.example.drinkshop.Models.AuthRequest;
 import com.example.drinkshop.Models.Entity.Drink;
 import com.example.drinkshop.Models.Entity.User;
 import com.example.drinkshop.Models.RegistrationInfo;
 import com.example.drinkshop.Repo.DrinkRepo;
+import com.example.drinkshop.Repo.UserRepo;
+import com.example.drinkshop.Security.MyUserService;
 import com.example.drinkshop.Service.DatabaseManager;
+import com.example.drinkshop.Util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class MainController {
@@ -23,7 +37,81 @@ public class MainController {
     @Autowired
     DrinkRepo dr;
 
+    @Autowired
+    UserRepo userRepo;
+
+    @Autowired
+    MyUserService myUserService;
+
+    @Autowired
+    JwtUtil jwtUtil;
+
+    AuthenticationManager authenticationManager;
+
     RegistrationInfo RI = new RegistrationInfo();
+
+    @PostMapping("/login")
+    public ResponseEntity<?> loginUser(@RequestParam("username") String username,
+                                       @RequestParam("password") String password) {
+        Map<String, Object> responseMap = new HashMap<>();
+        try {
+            Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username
+                    , password));
+            if (auth.isAuthenticated()) {
+                UserDetails userDetails = myUserService.loadUserByUsername(username);
+                String token = jwtUtil.generateToken(userDetails);
+                responseMap.put("error", false);
+                responseMap.put("message", "Logged In");
+                responseMap.put("token", token);
+                return ResponseEntity.ok(responseMap);
+            } else {
+                responseMap.put("error", true);
+                responseMap.put("message", "Invalid Credentials");
+                return ResponseEntity.status(401).body(responseMap);
+            }
+        } catch (DisabledException e) {
+            e.printStackTrace();
+            responseMap.put("error", true);
+            responseMap.put("message", "User is disabled");
+            return ResponseEntity.status(500).body(responseMap);
+        } catch (BadCredentialsException e) {
+            responseMap.put("error", true);
+            responseMap.put("message", "Invalid Credentials");
+            return ResponseEntity.status(401).body(responseMap);
+        } catch (Exception e) {
+            e.printStackTrace();
+            responseMap.put("error", true);
+            responseMap.put("message", "Something went wrong");
+            return ResponseEntity.status(500).body(responseMap);
+        }
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> saveUser(@RequestParam("username") String userName,
+                                      @RequestParam("password") String password) {
+        Map<String, Object> responseMap = new HashMap<>();
+        User user = new User();
+        user.setPassword(password);
+        user.setRole("ROLE_USER");
+        user.setUsername(userName);
+        userRepo.save(user);
+        UserDetails userDetails = myUserService.loadUserByUsername(userName);
+        String token = jwtUtil.generateToken(userDetails);
+        responseMap.put("error", false);
+        responseMap.put("username", userName);
+        responseMap.put("message", "Account created successfully");
+        responseMap.put("token", token);
+        return ResponseEntity.ok(responseMap);
+    }
+
+    @GetMapping("/getUser")
+    public Map<String, Object> getUserName() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("username", authentication.getName());
+        userMap.put("error", false);
+        return userMap;
+    }
 
     @Operation(summary = "Get the list of all products")
     @GetMapping("/products")
@@ -105,24 +193,6 @@ public class MainController {
         return mav;
     }
 
-    @PostMapping("/register")
-    public String register(@ModelAttribute User user, HttpServletRequest request){
-        user.setRole("ROLE_USER");
-        if(dbm.checkUser(user.getUsername())){
-            RI.setInUse(true);
-            return "Username is already in use, go back to login/reg page!";
-        }else{
-            dbm.saveUser(user);
-            RI.setInUse(false);
-            try {
-                request.login(user.getUsername(), user.getPassword());
-            } catch (ServletException e) {
-                e.printStackTrace();
-            }
-            return "SUCCESS!";
-        }
-
-    }
 
     @Operation(summary = "Get the list of administrators")
     @GetMapping("/admins")

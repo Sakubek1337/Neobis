@@ -5,7 +5,9 @@ import com.example.drinkshop.Models.Entity.Drink;
 import com.example.drinkshop.Models.Entity.User;
 import com.example.drinkshop.Repo.DrinkRepo;
 import com.example.drinkshop.Repo.UserRepo;
+import com.example.drinkshop.Security.MyUserService;
 import com.example.drinkshop.Service.DatabaseManager;
+import com.example.drinkshop.Util.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -29,8 +31,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(MainController.class)
 public class MainControllerTests {
 
-
-
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -41,6 +41,10 @@ public class MainControllerTests {
     DrinkRepo drinkRepo;
     @MockBean
     DatabaseManager dbm;
+    @MockBean
+    JwtUtil jwtUtil;
+    @MockBean
+    MyUserService myUserService;
 
     Drink drink1 = new Drink(1L, "coke", 123, 321, "url");
     Drink drink2 = new Drink(2L, "pepsi", 123, 321, "url");
@@ -188,5 +192,20 @@ public class MainControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[2].username").value("admin1"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(4)));
+    }
+
+    @Test
+    @WithMockUser(username = "sss", password = "123", roles = {"ADMIN", "USER"})
+    public void order_success() throws Exception {
+        Mockito.when(dbm.getDrinkById(1L)).thenReturn(drink1);
+
+        MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.post("/order/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(mockRequest)
+                .andExpect(status().isOk())
+                .andExpect(content().string("Drink " + drink1.getName() +
+                        " was successfully delivered to your berloga! Enjoy!"));
     }
 }
