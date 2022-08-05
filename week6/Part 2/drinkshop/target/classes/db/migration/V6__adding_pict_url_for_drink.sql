@@ -1,1 +1,0 @@
-ALTER TABLE drinks ADD COLUMN pict_url varchar(500);

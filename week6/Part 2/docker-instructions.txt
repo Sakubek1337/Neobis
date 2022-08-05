@@ -1,6 +1,7 @@
 ***These instructions are written assuming that you already have downloaded the latest version of the project
 1.Start your docker engine
-2.Make sure that in [/drinkshop/target] directory there is a file named drinkshop-0.0.1-SNAPSHOT.jar
+2.Build .jar file of the project with Maven. | In terminal: [./mvnw clean package] 
+*Make sure that you have JAVA_HOME in environment variables with path to the jdk 8 folder(Ex.: [C:\Users\User\.jdks\corretto-1.8.0_292]
 3.Open any terminal (I used Powershell)
 4.Set current directory to the project's main file [***/drinkshop] 
 5.Enter the command: [docker-compose up]   (without brackets obviously)

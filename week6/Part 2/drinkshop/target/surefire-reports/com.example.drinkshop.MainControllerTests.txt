@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.example.drinkshop.MainControllerTests
--------------------------------------------------------------------------------
-Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 13.298 s - in com.example.drinkshop.MainControllerTests

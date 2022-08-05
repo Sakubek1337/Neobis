@@ -1,1 +1,0 @@
-ALTER TABLE users ADD COLUMN pict_url varchar(500);
