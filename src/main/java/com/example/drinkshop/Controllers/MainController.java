@@ -1,6 +1,5 @@
 package com.example.drinkshop.Controllers;
 
-import com.example.drinkshop.Models.AuthRequest;
 import com.example.drinkshop.Models.Entity.Drink;
 import com.example.drinkshop.Models.Entity.User;
 import com.example.drinkshop.Models.RegistrationInfo;
