@@ -1,7 +1,0 @@
-1./admin/***
-Endpoints where you can make changes to the database must be available only for admins!
-Fix: make it accessible only for users with "ADMIN" role.
-2./order/{id}
-If we suppose that ordering system in future will have payment and delivery system, it is necessary
-to secure this endpoint to make sure that non-registered can not access it.
-Fix: make it accessible only for authenticated users.

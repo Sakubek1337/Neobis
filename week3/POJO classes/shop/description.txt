@@ -1,8 +1,0 @@
-These are POJO (Plain Old Java Object) classes for my imaginary phones' shop.
-
-Foreign keys ''Format:(TableName (ColumnName) --> ReferencedTableName (ColumnName))'':
-Phone (country_id) --> Country (id)
-Phone (warehouse_id) --> Warehouse (id)
-Phone (brand_id) --> Brand (id)
-Brand (country_id) --> Country (id)
-Employee (country_id) --> Country (id)

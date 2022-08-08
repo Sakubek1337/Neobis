@@ -1,5 +1,0 @@
-1)Connected to database.
-2)Inserted 2 rows.
-3)Selected and printed resultset on console.
-4)Then deleted the records.
-EZ.
