@@ -1,0 +1,23 @@
+version: '2'
+
+services:
+  web:
+    image: 'drinkshop:latest'
+    build:
+      context: .
+    container_name: web
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=jdbc:postgresql://db:5432/postgres
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=1234
+    ports:
+      - "8888:8080"
+
+  db:
+    image: 'postgres:14.1'
+    container_name: db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234
